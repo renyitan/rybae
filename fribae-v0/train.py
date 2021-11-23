@@ -51,7 +51,7 @@ input_size = len(x_train[0])
 hidden_size = 8
 num_classes = len(tags)
 learning_rate = 0.001
-num_epochs = 1000
+num_epochs = 500
 
 
 class ChatDataset(Dataset):
