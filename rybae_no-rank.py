@@ -1,7 +1,7 @@
 from functools import wraps
+import functools
 from telegram import ChatAction
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters
-
 
 from model_utils import *
 
@@ -9,20 +9,14 @@ from model_utils import *
 telegram_token = "5037298729:AAGk1aaYg9-wjSeMak5Cvw0RxqgLWADwPUA"  # ryabe_dev
 
 
-def start_command(update, context):
+def start_bot(update, context):
     context.chat_data['turns'] = []
     update.message.reply_text("rybae at your service")
 
 
-def reset_command(update, context):
+def reset_bot(update, context):
     context.chat_data['chat_history_ids'] = []
-    update.message.reply_text('farewell')
-
-
-def self_decorator(self, func):
-    def command_func(update, context, *args, **kwargs):
-        return func(self, update, context, *args, **kwargs)
-    return command_func
+    update.message.reply_text('it\'s your loss')
 
 
 def get_chat_id(update, context):
@@ -39,30 +33,26 @@ def get_chat_id(update, context):
     return chat_id
 
 
-def send_action(action):
-    def send_action_decorator(fn):
-        @wraps(fn)
-        def command_func(self, update, context, *args, **kwargs):
-            context.bot.send_chat_action(chat_id=get_chat_id(
-                update, context), action=action)
-            return fn(self, update, context, *args, **kwargs)
-        return command_func
-    return send_action_decorator
-
-
-@send_action(ChatAction.TYPING)  # decorator for message()
-def message(self, update, context):
-    """Receive message, generate response, and send it back to the user."""
+def reply_message(self, update, context):
+    """Receive message, generate response, and reply."""
 
     max_turns_history = 2
     max_chat_context_history = 10
 
+    # when first started, turns will be empty, create empty list
     if 'turns' not in context.chat_data:
         context.chat_data['turns'] = []
     turns = context.chat_data['turns']
 
+    if max_turns_history == 0:
+        context.chat_data['turns'] = []
+
     # extract incoming user message
     user_message = update.message.text
+
+    # set chat action to "Typing..."
+    context.bot.send_chat_action(chat_id=get_chat_id(
+        update, context), action=ChatAction.TYPING)
 
     # parameters for generator_pipeline
     generator_pipeline_kwargs = {
@@ -74,9 +64,6 @@ def message(self, update, context):
         "top_p": 0.9,
         "temperature": 1
     }
-
-    if max_turns_history == 0:
-        context.chat_data['turns'] = []
 
     # establish current turn
     turn = {
@@ -94,11 +81,11 @@ def message(self, update, context):
     for turn in turns[from_index:]:
         # each turn begins with user message to capture context
         for user_message in turn['user_messages']:
-            current_prompt += clean_text(user_message) + \
+            current_prompt += strip_text(user_message) + \
                 self.generator_pipeline.tokenizer.eos_token
         # add bot messages to capture context
         for bot_message in turn['bot_messages']:
-            current_prompt += clean_text(bot_message) + \
+            current_prompt += strip_text(bot_message) + \
                 self.generator_pipeline.tokenizer.eos_token
 
     # generate the response
@@ -108,10 +95,11 @@ def message(self, update, context):
         **generator_pipeline_kwargs
     )
 
+    # reply with the first response
     if(len(bot_messages) == 1):
         bot_message = bot_messages[0]
 
-    # append the bot message into chat context
+    # append the bot message (response) into chat context
     turn['bot_messages'].append(bot_message)
 
     # only keep the most recent 5 chats to prevent storing too much
@@ -122,23 +110,24 @@ def message(self, update, context):
     update.message.reply_text(bot_message)
 
 
-class TelegramBot:
+class RybaeBot:
     def __init__(self) -> None:
+        print("Initialising rybae...")
         self.updater = Updater(token=telegram_token, use_context=True)
 
         self.generator_pipeline = load_pipeline(
-            'text-generation', device=-1, model="microsoft/DialoGPT-medium")
+            'text-generation', device=-1, model="microsoft/DialoGPT-small")
 
         dispatcher = self.updater.dispatcher
-        dispatcher.add_handler(CommandHandler('start', start_command))
-        dispatcher.add_handler(CommandHandler('reset', reset_command))
+        dispatcher.add_handler(CommandHandler('start', start_bot))
+        dispatcher.add_handler(CommandHandler('reset', reset_bot))
         dispatcher.add_handler(MessageHandler(
-            Filters.text, self_decorator(self, message)))
+            Filters.text, functools.partial(reply_message, self)))  # functools.partial allow us to add 'self' to callback 'reply_message'
 
     def run(self):
-        print("Running the telegram bot...")
+        print("Rybae is alive! 🚀")
         self.updater.start_polling()
 
 
-tb = TelegramBot()
-tb.run()
+rybae = RybaeBot()
+rybae.run()
