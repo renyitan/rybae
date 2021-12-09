@@ -1,4 +1,4 @@
-"""MS DialoGPT without fine-tuning and no response ranking"""
+"""DialoGPT without fine-tuning and no response ranking"""
 
 import os
 from utils.model_utils import *
