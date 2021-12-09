@@ -12,7 +12,7 @@ Currently, this model runs on Tensorflow 2.0 and uses the `huggingface` transfor
 <br>
 
 ## Get started
----
+
 1. Install project dependencies
 ```
 pip install -r requirements.txt
@@ -28,10 +28,7 @@ TELEGRAM_TOKEN = os.environ.get('TELEGRAM_TOKEN')
 python3 main.py
 ```
 
-<br>
-
 ## References
----
 - [Polakawo/gpt2bot on Pytorch](https://github.com/polakowo/gpt2bot)
 - [Microsoft DialoGPT - Main](https://github.com/microsoft/DialoGPT)
 - [Huggingface Transformers 🤗](https://huggingface.co/docs/transformers/index)
