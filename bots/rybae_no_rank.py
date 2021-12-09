@@ -1,5 +1,5 @@
 import os
-from model_utils import *
+from utils.model_utils import *
 from functools import wraps
 import functools
 from telegram import ChatAction
