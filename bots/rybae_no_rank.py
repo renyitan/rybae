@@ -1,6 +1,7 @@
+"""MS DialoGPT without fine-tuning and no response ranking"""
+
 import os
 from utils.model_utils import *
-from functools import wraps
 import functools
 from telegram import ChatAction
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters
@@ -115,8 +116,8 @@ class RybaeBot:
     def __init__(self) -> None:
         print("Initialising rybae...")
         self.updater = Updater(token=TELEGRAM_TOKEN, use_context=True)
-        # self.PORT = int(os.environ.get('PORT', '8443'))
-        # self.BASE_URL = "https://rybae-bot.azurewebsites.net/"
+        # self.PORT = int(os.environ.get('PORT'))
+        # self.BASE_URL = os.environ.get('BASE_URL)
 
         self.generator_pipeline = load_pipeline(
             'text-generation', device=-1, model="microsoft/DialoGPT-large")
@@ -124,8 +125,10 @@ class RybaeBot:
         dispatcher = self.updater.dispatcher
         dispatcher.add_handler(CommandHandler('start', start_bot))
         dispatcher.add_handler(CommandHandler('reset', reset_bot))
+
+        # functools.partial allow us to add 'self' to callback 'reply_message'
         dispatcher.add_handler(MessageHandler(
-            Filters.text, functools.partial(reply_message, self)))  # functools.partial allow us to add 'self' to callback 'reply_message'
+            Filters.text, functools.partial(reply_message, self)))
 
     def run(self):
         print("Rybae is alive! 🚀")
