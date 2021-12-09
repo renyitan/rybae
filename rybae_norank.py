@@ -9,8 +9,6 @@ load_dotenv()
 
 TELEGRAM_TOKEN = os.environ.get('TELEGRAM_TOKEN')
 
-# TELEGRAM_TOKEN=5087727847:AAHd1Sqc2WZf1r4AITGZJ8be4bl3mWWhNMQ prod
-
 
 def start_bot(update, context):
     context.chat_data['turns'] = []
@@ -117,11 +115,11 @@ class RybaeBot:
     def __init__(self) -> None:
         print("Initialising rybae...")
         self.updater = Updater(token=TELEGRAM_TOKEN, use_context=True)
-        self.PORT = int(os.environ.get('PORT', '8443'))
-        self.BASE_URL = "https://rybae-bot.azurewebsites.net/"
+        # self.PORT = int(os.environ.get('PORT', '8443'))
+        # self.BASE_URL = "https://rybae-bot.azurewebsites.net/"
 
         self.generator_pipeline = load_pipeline(
-            'text-generation', device=-1, model="microsoft/DialoGPT-small")
+            'text-generation', device=-1, model="microsoft/DialoGPT-large")
 
         dispatcher = self.updater.dispatcher
         dispatcher.add_handler(CommandHandler('start', start_bot))
@@ -131,12 +129,8 @@ class RybaeBot:
 
     def run(self):
         print("Rybae is alive! 🚀")
-        # self.updater.start_polling()
-        self.updater.start_webhook(listen="0.0.0.0", port=self.PORT,
-                                   url_path=TELEGRAM_TOKEN, webhook_url=self.BASE_URL + TELEGRAM_TOKEN)
+        self.updater.start_polling()
+        # self.updater.start_webhook(listen="0.0.0.0", port=self.PORT,
+        #                            url_path=TELEGRAM_TOKEN, webhook_url=self.BASE_URL + TELEGRAM_TOKEN)
 
         self.updater.idle()
-
-
-# rybae = RybaeBot()
-# rybae.run()
