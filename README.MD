@@ -9,6 +9,8 @@ Rybae is powered by [DialoGPT](https://github.com/microsoft/DialoGPT) - a large 
 
 Currently, this model runs on Tensorflow 2.0 and uses the `huggingface` transformer 
 
+**Note**: bot is not always switched on to save compute cost
+
 <br>
 
 ## Get started
