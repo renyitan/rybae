@@ -1,12 +1,15 @@
+import os
+from model_utils import *
 from functools import wraps
 import functools
 from telegram import ChatAction
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters
+from dotenv import load_dotenv
+load_dotenv()
 
-from model_utils import *
+TELEGRAM_TOKEN = os.environ.get('TELEGRAM_TOKEN')
 
-# telegram_token = "5087727847:AAHd1Sqc2WZf1r4AITGZJ8be4bl3mWWhNMQ" #rybae
-telegram_token = "5037298729:AAGk1aaYg9-wjSeMak5Cvw0RxqgLWADwPUA"  # ryabe_dev
+# TELEGRAM_TOKEN=5087727847:AAHd1Sqc2WZf1r4AITGZJ8be4bl3mWWhNMQ prod
 
 
 def start_bot(update, context):
@@ -113,7 +116,7 @@ def reply_message(self, update, context):
 class RybaeBot:
     def __init__(self) -> None:
         print("Initialising rybae...")
-        self.updater = Updater(token=telegram_token, use_context=True)
+        self.updater = Updater(token=TELEGRAM_TOKEN, use_context=True)
 
         self.generator_pipeline = load_pipeline(
             'text-generation', device=-1, model="microsoft/DialoGPT-small")
