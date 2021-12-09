@@ -117,6 +117,8 @@ class RybaeBot:
     def __init__(self) -> None:
         print("Initialising rybae...")
         self.updater = Updater(token=TELEGRAM_TOKEN, use_context=True)
+        self.PORT = int(os.environ.get('PORT', '8443'))
+        self.BASE_URL = "https://rybae-bot.azurewebsites.net/"
 
         self.generator_pipeline = load_pipeline(
             'text-generation', device=-1, model="microsoft/DialoGPT-small")
@@ -129,8 +131,12 @@ class RybaeBot:
 
     def run(self):
         print("Rybae is alive! 🚀")
-        self.updater.start_polling()
+        # self.updater.start_polling()
+        self.updater.start_webhook(listen="0.0.0.0", port=self.PORT,
+                                   url_path=TELEGRAM_TOKEN, webhook_url=self.BASE_URL + TELEGRAM_TOKEN)
+
+        self.updater.idle()
 
 
-rybae = RybaeBot()
-rybae.run()
+# rybae = RybaeBot()
+# rybae.run()
