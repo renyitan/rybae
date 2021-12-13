@@ -51,6 +51,8 @@ def reply_message(self, update, context):
 
     # extract incoming user message
     user_message = update.message.text
+    user_name = update.message.chat.username
+    print(f'{user_name}: ', user_message)
 
     # set chat action to "Typing..."
     context.bot.send_chat_action(chat_id=get_chat_id(
@@ -109,6 +111,7 @@ def reply_message(self, update, context):
         context.chat_data["turns"] = turns[1:]
 
     # reply the user
+    print('rybae: ', bot_message)
     update.message.reply_text(bot_message)
 
 
